@@ -53,7 +53,7 @@ const Canvas: React.FC = () => {
         setCursorPosition(x, y);
         lastSaved.current = { x, y };
       }
-    }, 400);
+    }, 500);
     return () => clearInterval(interval);
   }, [setCursorPosition]);
 
