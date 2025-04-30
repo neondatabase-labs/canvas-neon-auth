@@ -163,9 +163,7 @@ const PostItsContext = createContext<PostItsContextType | undefined>(undefined);
 export function PostItsProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(postItsReducer, initialState);
   const z = useZero<Schema>();
-  // const [postIts] = useQuery(z.query.post_its, {
-  //   ttl: "forever",
-  // });
+
   const [userCursors] = useQuery(z.query.user_cursors.where("user_id", "IS NOT", getUserId()).where("updated_at", ">", Date.now() - 1000 * 60 * 5));
 
   // Actions
