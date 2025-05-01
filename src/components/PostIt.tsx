@@ -139,18 +139,25 @@ const PostIt: React.FC<PostItProps> = ({ id, position, size, zIndex, content: in
     setIsEditing(true);
   };
 
-  const handleBlur = () => {
-    if (!isCreator) return; // Prevent updates if not creator
-    setIsEditing(false);
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (!isCreator) return;
+    const newContent = e.target.value;
+    setContent(newContent);
+    
     updatePostIt({
       id,
       position: pos,
       size: sz,
       zIndex,
-      content,
+      content: newContent,
       color: color as PostItColor,
       created_by,
     });
+  };
+
+  const handleBlur = () => {
+    if (!isCreator) return;
+    setIsEditing(false);
   };
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -187,7 +194,7 @@ const PostIt: React.FC<PostItProps> = ({ id, position, size, zIndex, content: in
           ref={textareaRef}
           className={`w-full h-full resize-none bg-transparent p-1 focus:outline-none ${!isCreator ? 'cursor-not-allowed' : ''}`}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleContentChange}
           onBlur={handleBlur}
           readOnly={!isCreator}
         />
