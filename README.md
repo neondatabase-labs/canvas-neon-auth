@@ -2,6 +2,8 @@
 
 A collaborative canvas app with Neon Auth authentication and Zero real-time database.
 
+![demo](./demo.gif)
+
 ## Features
 
 - **Real-time Collaboration**: Multiple users can work on the same canvas simultaneously
