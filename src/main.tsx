@@ -1,29 +1,34 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
-import { ZeroProvider } from "@rocicorp/zero/react";
-import { Zero } from "@rocicorp/zero";
-import { schema } from "./schema.ts";
-import Cookies from "js-cookie";
-import { decodeJwt } from "jose";
+import { StrictMode, Suspense } from "react";
 
-const encodedJWT = Cookies.get("jwt");
-const decodedJWT = encodedJWT && decodeJwt(encodedJWT);
-const userID = decodedJWT?.sub ? (decodedJWT.sub as string) : "anon";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { StackProvider, StackTheme } from "@stackframe/react";
 
-const z = new Zero({
-  userID,
-  auth: () => import.meta.env.VITE_JWT_SECRET,
-  server: import.meta.env.VITE_PUBLIC_SERVER,
-  schema,
-  kvStore: "idb",
-});
+import { AuthProvider } from "@/contexts/auth-provider.tsx";
+import { NeonAuthZeroProvider } from "@/contexts/neon-auth-zero-provider";
+import { stackClientApp } from "@/stack.ts";
+import App from "@/app";
+import Handler from "@/handler.tsx";
 
-createRoot(document.getElementById('root')!).render(
+import "./index.css";
+
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ZeroProvider zero={z}>
-      <App />
-    </ZeroProvider>
+    <Suspense fallback={null}>
+      <BrowserRouter>
+        <StackProvider app={stackClientApp}>
+          <AuthProvider>
+            <StackTheme>
+              <NeonAuthZeroProvider>
+                <Routes>
+                  <Route path="/" element={<App />} />
+                  <Route path="/handler/*" element={<Handler />} />
+                </Routes>
+              </NeonAuthZeroProvider>
+            </StackTheme>
+          </AuthProvider>
+        </StackProvider>
+      </BrowserRouter>
+    </Suspense>
   </StrictMode>
 );

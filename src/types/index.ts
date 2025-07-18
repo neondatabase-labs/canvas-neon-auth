@@ -6,6 +6,8 @@ export interface PostIt {
   size: { width: number; height: number };
   zIndex: number;
   created_by: string;
+  created_at?: number;
+  updated_at?: number;
 }
 
 export type PostItColor = 'yellow' | 'pink' | 'blue' | 'green';

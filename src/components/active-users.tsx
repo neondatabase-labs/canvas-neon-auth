@@ -1,5 +1,6 @@
 import React from 'react';
-import { usePostIts } from '../context/PostItsContext';
+
+import { usePostIts } from '@/contexts/post-its-context';
 
 // Color palette and color function (should match Canvas.tsx)
 const cursorColors = [

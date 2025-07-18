@@ -1,7 +1,9 @@
 import React from 'react';
-import { usePostIts } from '../context/PostItsContext';
+
 import { Plus } from 'lucide-react';
-import { getColorClass } from '../utils/helpers';
+
+import { usePostIts } from '@/contexts/post-its-context';
+import { getColorClass } from '@/utils/helpers';
 
 const AddButton: React.FC = () => {
   const { addPostIt, state } = usePostIts();

@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
-
 export function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
 }
@@ -52,27 +50,3 @@ export function getColorTabClass(color: string, isSelected: boolean): string {
       return `${baseClass} ${selectedClass} bg-amber-200 border-amber-300 ring-amber-500`;
   }
 }
-
-export const getUserId = () => {
-  // Check if user ID exists in cookie
-  const userId = document.cookie
-    .split('; ')
-    .find(row => row.startsWith('userId='))
-    ?.split('=')[1];
-
-  if (userId) {
-    return userId;
-  }
-
-  // Generate new user ID if none exists
-  const newUserId = uuidv4();
-  
-  // Set cookie to expire in 1 year
-  const expiryDate = new Date();
-  expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-  
-  // Set cookie with SameSite=Strict for security
-  document.cookie = `userId=${newUserId}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Strict`;
-  
-  return newUserId;
-};

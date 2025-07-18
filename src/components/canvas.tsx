@@ -1,9 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
-import PostIt from './PostIt';
-import AddButton from './AddButton';
-import { usePostIts } from '../context/PostItsContext';
-import { Schema } from '../schema';
+
 import { useZero, useQuery } from '@rocicorp/zero/react';
+
+import PostIt from '@/components/post-it';
+import AddButton from '@/components/add-button';
+import { usePostIts } from '@/contexts/post-its-context';
+import { Schema } from '@/schema';
+import { PostItColor } from '@/types';
 
 // Color palette for user cursors
 const cursorColors = [
@@ -107,6 +110,7 @@ const Canvas: React.FC = () => {
       {/* Render all user cursors except current user */}
       {userCursors.map((cursor) => {
         const color = getColorForUser(cursor.user_id);
+        
         return (
           <div
             key={cursor.user_id}
@@ -132,21 +136,31 @@ const Canvas: React.FC = () => {
                 style={{ paintOrder: 'stroke' }}
               />
             </svg>
-            {/* User label */}
+            {/* User info label */}
             <div style={{
               marginTop: 2,
-              fontSize: 13,
-              fontWeight: 700,
-              color,
+              fontSize: 11,
+              fontWeight: 600,
+              color: '#333',
               background: '#fff',
               borderRadius: 6,
-              padding: '2px 8px',
-              boxShadow: '0 1px 4px #0002',
-              border: `1.5px solid ${color}`,
+              padding: '4px 8px',
+              boxShadow: '0 2px 8px #0003',
+              border: `2px solid ${color}`,
               userSelect: 'none',
-              minWidth: 36,
+              minWidth: 80,
               textAlign: 'center',
-            }}>{cursor.user_id.slice(0, 6)}</div>
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1px',
+            }}>
+              <div style={{ fontSize: 12, fontWeight: 700 }}>
+                {cursor.user_id.slice(0, 8)}
+              </div>
+              <div style={{ fontSize: 10, opacity: 0.7 }}>
+                {cursor.user_id}
+              </div>
+            </div>
           </div>
         );
       })}
@@ -161,7 +175,7 @@ const Canvas: React.FC = () => {
         }}
       >
         {/* Render all post-its from live query */}
-        {(postIts).map((postIt: any) => (
+        {(postIts).map((postIt) => (
           <PostIt
             key={postIt.id}
             id={postIt.id}
@@ -169,7 +183,7 @@ const Canvas: React.FC = () => {
             size={{ width: postIt.size_width, height: postIt.size_height }}
             zIndex={postIt.z_index}
             content={postIt.content}
-            color={postIt.color as any}
+            color={postIt.color as PostItColor}
             created_by={postIt.created_by}
             onClick={() => handlePostItClick(postIt.id)}
           />

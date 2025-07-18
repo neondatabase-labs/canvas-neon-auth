@@ -5,10 +5,8 @@ import {
   number,
   ANYONE_CAN,
   definePermissions,
-  ExpressionBuilder,
   PermissionsConfig
 } from "@rocicorp/zero";
-import { getUserId } from './utils/helpers';
 
 // Define the post-it table
 const postIts = table("post_its")
@@ -44,25 +42,12 @@ export const schema = createSchema({
 // Export types for use in our app
 export type Schema = typeof schema;
 
-// Update AuthData to use cookie-based userId
+// Auth data type for Zero permissions
 type AuthData = {
   userId: string;
 };
 
-// Function to get current auth data
-export const getCurrentAuthData = (): AuthData => {
-  return {
-    userId: getUserId()
-  };
-};
-
 export const permissions = definePermissions<AuthData, Schema>(schema, () => {
-
-  const allowIfPostItsCreator = (
-    authData: AuthData,
-    { cmp }: ExpressionBuilder<Schema, "post_its">
-  ) => cmp("created_by", "=", authData.userId);
-
   return {
     post_its: {
       row: {

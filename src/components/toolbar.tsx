@@ -1,8 +1,10 @@
 import React from 'react';
-import { usePostIts } from '../context/PostItsContext';
-import { getColorTabClass } from '../utils/helpers';
-import { PostItColor } from '../types';
+
 import { Undo, Redo, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+
+import { usePostIts } from '@/contexts/post-its-context';
+import { getColorTabClass } from '@/utils/helpers';
+import { PostItColor } from '@/types';
 
 const Toolbar: React.FC = () => {
   const { state, setColor, undo, redo, setZoom } = usePostIts();

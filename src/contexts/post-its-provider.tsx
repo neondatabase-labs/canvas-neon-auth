@@ -1,35 +1,15 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { PostIt, PostItColor, PostItsState } from '../types';
-import { generateId, getRandomPosition, getUserId } from '../utils/helpers';
+import React, { useReducer } from 'react';
+
 import { useZero, useQuery } from '@rocicorp/zero/react';
-import type { Schema } from '../schema';
 
-// Define database post-it type
-type DBPostIt = {
-  id: string;
-  content: string;
-  color: string;
-  position_x: number;
-  position_y: number;
-  size_width: number;
-  size_height: number;
-  z_index: number;
-  created_at: number;
-  updated_at: number;
-  created_by: string;
-};
+import { PostIt, PostItColor, PostItsState } from '@/types';
+import { generateId, getRandomPosition } from '@/utils/helpers';
+import { useUserId } from '@/contexts/auth-context';
+import { PostItsContext, PostItsAction } from '@/contexts/post-its-context';
 
-// PostItsAction type definition
-type PostItsAction =
-  | { type: 'ADD_POSTIT'; payload: PostIt }
-  | { type: 'UPDATE_POSTIT'; payload: PostIt }
-  | { type: 'UPDATE_ALL_POSTITS'; payload: PostIt[] }
-  | { type: 'DELETE_POSTIT'; payload: string }
-  | { type: 'SET_COLOR'; payload: PostItColor }
-  | { type: 'SET_ZOOM'; payload: number }
-  | { type: 'UNDO' }
-  | { type: 'REDO' };
+import type { Schema } from '@/schema';
 
+// Initial state
 const initialState: PostItsState = {
   postIts: [],
   selectedColor: 'yellow',
@@ -122,53 +102,22 @@ function postItsReducer(state: PostItsState, action: PostItsAction): PostItsStat
         }
       };
     }
-    case 'UPDATE_ALL_POSTITS': {
-      return {
-        ...state,
-        postIts: action.payload,
-        history: {
-          past: [...state.history.past, state.postIts],
-          future: []
-        }
-      };
-    }
     default:
       return state;
   }
 }
 
-type UserCursor = {
-  user_id: string;
-  x: number;
-  y: number;
-  updated_at: number;
-};
-
-type PostItsContextType = {
-  dispatch: React.Dispatch<PostItsAction>;
-  addPostIt: () => void;
-  updatePostIt: (postIt: PostIt) => void;
-  deletePostIt: (id: string) => void;
-  setColor: (color: PostItColor) => void;
-  setZoom: (level: number) => void;
-  undo: () => void;
-  redo: () => void;
-  setCursorPosition: (x: number, y: number) => void;
-  userCursors: UserCursor[];
-  state: PostItsState;
-};
-
-const PostItsContext = createContext<PostItsContextType | undefined>(undefined);
-
 export function PostItsProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(postItsReducer, initialState);
   const z = useZero<Schema>();
+  const userId = useUserId();
 
-  const [userCursors] = useQuery(z.query.user_cursors.where("user_id", "IS NOT", getUserId()).where("updated_at", ">", Date.now() - 1000 * 60 * 5));
+  const [userCursors] = useQuery(z.query.user_cursors.where("user_id", "IS NOT", userId || 'anonymous').where("updated_at", ">", Date.now() - 1000 * 60 * 5));
 
   // Actions
   const addPostIt = () => {
-    const userId = getUserId();
+    if (!userId) return false; // Don't allow adding post-its without authenticated user
+    
     const newPostIt: PostIt = {
       id: generateId(),
       content: 'New note',
@@ -201,7 +150,6 @@ export function PostItsProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updatePostIt = (postIt: PostIt & { created_at?: number }) => {
-
     // Update local state
     dispatch({ type: 'UPDATE_POSTIT', payload: postIt });
 
@@ -214,7 +162,7 @@ export function PostItsProvider({ children }: { children: React.ReactNode }) {
       size_width: postIt.size.width,
       size_height: postIt.size.height,
       z_index: postIt.zIndex,
-      created_at: (postIt as any).created_at || Date.now(),
+      created_at: postIt.created_at || Date.now(),
       updated_at: Date.now(),
       created_by: postIt.created_by,
       color: postIt.color,
@@ -250,7 +198,7 @@ export function PostItsProvider({ children }: { children: React.ReactNode }) {
 
   // Cursor position update
   const setCursorPosition = (x: number, y: number) => {
-    const userId = getUserId();
+    if (!userId) return; // Don't update cursor if no authenticated user
     const now = Date.now();
     z.mutate.user_cursors.upsert({
       user_id: userId,
@@ -279,12 +227,4 @@ export function PostItsProvider({ children }: { children: React.ReactNode }) {
       {children}
     </PostItsContext.Provider>
   );
-}
-
-export function usePostIts() {
-  const context = useContext(PostItsContext);
-  if (context === undefined) {
-    throw new Error('usePostIts must be used within a PostItsProvider');
-  }
-  return context;
-}
+} 

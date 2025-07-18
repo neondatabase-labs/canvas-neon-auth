@@ -1,97 +1,96 @@
-# Canvas - A Collaborative Drawing App
+# Canvas Neon Auth
 
-![Canvas Demo](image.png)
+A collaborative canvas app with Neon Auth authentication and Zero real-time database.
 
-This project is built using [Zero](https://github.com/rocicorp/hello-zero), a powerful real-time sync engine that makes building collaborative apps easy. Special thanks to the Zero team for their amazing work!
+## Features
 
-## Prerequisites
-
-- Node.js 20+
-- Docker
-- A [Neon](https://neon.tech) account for the database
-- A [Koyeb](https://koyeb.com) account for deploying Zero cache
-- A [Vercel](https://vercel.com) account for deploying the frontend
+- **Real-time Collaboration**: Multiple users can work on the same canvas simultaneously
+- **Neon Auth Authentication**: Secure user authentication and management
+- **Smart Cursors**: See other users' cursors with their name and email
+- **Post-it Notes**: Create, edit, and drag colorful post-it notes
+- **User Permissions**: Only creators can edit their own notes
+- **Zero Database**: Real-time data synchronization with Neon PostgreSQL and Zero
 
 ## Getting Started
 
-### Step 1: Install Dependencies
+### Prerequisites
+
+- [Bun](https://bun.sh/) (recommended) or Node.js
+- Neon PostgreSQL database
+- Neon Auth project setup
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
 
 ```bash
-git clone https://github.com/neondatabase-labs/canvas.git
-cd canvas
-npm install
+bun install
 ```
 
-### Step 2: Create a Neon Database
-
-1. Sign up for a [Neon account](https://neon.tech)
-2. Create a new project
-3. Copy your database connection string (you'll need this for the next steps)
-4. Apply the migration from `seed.sql`
-5. Run:
-```console
-npx zero-deploy-permissions --schema-path='./src/schema.ts'  --output-file='/tmp/permissions_canvas.sql'
-```
-and run the content of that file in your DB
-
-### Step 3: Run Locally
-
-1. Create a `.env` file in your project root:
+3. Copy the environment file:
 
 ```bash
-cp sample.env .env && rm sample.env
-
+cp .env.example .env
 ```
 
-2. Start Zero cache:
+4. Configure your environment variables in `.env`:
+   - `VITE_PUBLIC_SERVER` - Your Zero server URL
+   - `VITE_STACK_PROJECT_ID` - Neon Auth project ID
+   - `VITE_STACK_PUBLISHABLE_CLIENT_KEY` - Neon Auth publishable key
+
+5. Set up the database schema by running the SQL in `migration.sql`
+
+6. Add the required Zero permissions to your database by running `bunx zero-deploy-permissions --schema-path='./src/schema.ts' --output-file='/tmp/permissions_canvas.sql' && cat /tmp/permissions_canvas.sql | pbcopy`. This will copy the permissions to your clipboard, so you can paste and run them in the SQL editor or psql.
+
+### Development
+
+Start the development server:
 
 ```bash
-npm run dev:zero-cache
+bun dev
 ```
 
-3. In a new terminal, start the frontend:
+Start the Zero cache development server:
 
 ```bash
-npm run dev:ui
+bun run dev:zero-cache
 ```
 
-Your app should now be running at `http://localhost:5173`
+If you want to run the Zero cache development server instead of using the remote server deployed on Neon, read the guide [here](https://zero.rocicorp.dev/docs/quickstart).
 
-### Step 4: Deploy Zero Cache to Koyeb
+## Database Schema
 
-1. Sign up for a [Koyeb account](https://koyeb.com)
-2. Create a new app and select "Deploy a Docker image"
-3. Use the Zero Docker image
-4. Configure the following environment variables:
-   - `ZERO_UPSTREAM_DB`: Your Neon database connection string
-   - `ZERO_REPLICA_FILE`: "/tmp/sync-replica.db"
-   - `ZERO_PORT`: "8080" (or your preferred port)
+The app uses two main tables:
 
-### Step 5: Deploy Frontend to Vercel
+- `post_its` - Stores post-it note data
+- `user_cursors` - Tracks real-time cursor positions
 
-1. Push your code to GitHub
-2. Create a new project in [Vercel](https://vercel.com)
-3. Connect your GitHub repository
-4. Configure the following environment variables:
-   - `VITE_PUBLIC_SERVER`: Your Koyeb app URL (e.g., "https://your-app.koyeb.app")
-   - `ZERO_AUTH_SECRET`: A secure random string for authentication
+## Features in Detail
 
-## Architecture
+### Real-time Cursors
 
-- Frontend: React + Vite, hosted on Vercel
-- Backend: Zero cache server, hosted on Koyeb
-- Database: PostgreSQL, hosted on Neon
+See other users' cursors in real-time with their unique color.
 
-## Credits
+### Post-it Notes
 
-This project is built on top of [Zero](https://github.com/rocicorp/hello-zero) by Rocicorp. Special thanks to the Zero team for creating such an amazing tool for building real-time collaborative applications.
+- Create notes by clicking the add button
+- Drag and resize notes (only your own)
+- Edit content by double-clicking
+- Delete with the trash button
+- Color coding with the toolbar
 
-## Deployment Providers
+### Collaboration
 
-- [Koyeb](https://koyeb.com) - For hosting the Zero cache server
-- [Vercel](https://vercel.com) - For hosting the frontend
-- [Neon](https://neon.tech) - For hosting the PostgreSQL database
+- Real-time synchronization
+- User presence indicators
+- Permission-based editing
+- Conflict-free collaborative editing
 
-## License
+## Contributing
 
-MIT 
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
